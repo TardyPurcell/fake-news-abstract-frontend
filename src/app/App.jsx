@@ -9,7 +9,9 @@ import {
     Placeholder,
     Segment,
 } from 'semantic-ui-react'
+import axios from 'axios'
 
+const address = 'http://localhost:5000'
 
 class NewsInput extends React.Component {
     render() {
@@ -17,7 +19,7 @@ class NewsInput extends React.Component {
 
         return (
             <div>
-                <Form 
+                <Form
                     onSubmit={this.props.handleSubmit}
                 >
                     <Form.TextArea
@@ -64,7 +66,7 @@ class AbstractOutput extends React.Component {
             return (
                 <Segment raised>
                     <Header as='h2'>摘要</Header>
-                    {content}
+                    <p>{content}</p>
                 </Segment>
             )
         else
@@ -79,6 +81,12 @@ class Demo extends React.Component {
 
     handleSubmit = () => {
         this.setState({ used: true, loading: true, output: this.state.input })
+        axios.get(address + 'api/' + this.state.input)
+            .then(res => {
+                let { content } = res.data;
+                this.setState({ output: content, loading: false })
+            })
+            .catch(err => { console.log(err) })
     }
 
     render() {
@@ -129,7 +137,7 @@ const App = () => (
                             <Dropdown.Item
                                 button
                                 onClick={() => {
-                                    window.open('https://github.com/TardyPurcell/Fake-News-Abstract')
+                                    window.open('https://github.com/TardyPurcell/fake-news-abstract-frontend')
                                 }}
                             >
                                 前端
