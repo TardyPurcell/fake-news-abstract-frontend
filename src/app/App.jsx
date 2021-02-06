@@ -145,7 +145,7 @@ const App = () => (
                             <Dropdown.Item
                                 button
                                 onClick={() => {
-                                    window.open('https://www.bilibili.com/video/BV1GJ411x7h7?autoplay=1')
+                                    window.open('https://github.com/TardyPurcell/fake-news-abstract-backend')
                                 }}
                             >
                                 后端
