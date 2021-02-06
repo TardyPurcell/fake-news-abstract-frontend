@@ -11,7 +11,7 @@ import {
 } from 'semantic-ui-react'
 import axios from 'axios'
 
-const address = 'http://localhost:5000'
+const address = 'http://localhost:5000/'
 
 class NewsInput extends React.Component {
     render() {
