@@ -3,17 +3,28 @@ import {
     Divider,
     Dropdown,
     Form,
+    FormProps,
     Grid,
     Header,
     Message,
     Placeholder,
     Segment,
+    TextAreaProps,
 } from 'semantic-ui-react'
 import axios from 'axios'
 
-const address = 'http://localhost:5000/'
-
-class NewsInput extends React.Component {
+const address = 'http://localhost/'
+axios.interceptors.response.use(resp => resp, err => {
+    console.log(err);
+});
+axios.defaults.baseURL = address;
+interface NewsInputPropsType {
+    content: string;
+    loading: boolean;
+    handleSubmit: (event: React.FormEvent<HTMLFormElement>, data: FormProps) => void;
+    handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>, data: TextAreaProps) => void;
+};
+class NewsInput extends React.Component<NewsInputPropsType, {}> {
     render() {
         const content = this.props.content
 
@@ -42,7 +53,13 @@ class NewsInput extends React.Component {
     }
 }
 
-class AbstractOutput extends React.Component {
+interface AbstractOutputPropsType {
+    content: string;
+    loading: boolean;
+    used: boolean;
+};
+
+class AbstractOutput extends React.Component<AbstractOutputPropsType> {
     render() {
         const content = this.props.content
 
@@ -74,20 +91,10 @@ class AbstractOutput extends React.Component {
     }
 }
 
-class Demo extends React.Component {
-    state = { input: '', output: '', used: false, loading: false }
+class Demo extends React.Component<{}, {
 
-    handleChange = (e, { value }) => this.setState({ input: value })
-
-    handleSubmit = () => {
-        this.setState({ used: true, loading: true, output: this.state.input })
-        axios.get(address + 'api/' + this.state.input)
-            .then(res => {
-                let { content } = res.data;
-                this.setState({ output: content, loading: false })
-            })
-            .catch(err => { console.log(err) })
-    }
+}> {
+    readonly state = { input: '', output: '', used: false, loading: false }
 
     render() {
 
@@ -96,8 +103,16 @@ class Demo extends React.Component {
                 <NewsInput
                     content={this.state.input}
                     loading={this.state.loading}
-                    handleChange={this.handleChange}
-                    handleSubmit={this.handleSubmit}
+                    handleChange={(e, { value }) => this.setState({ input: value })}
+                    handleSubmit={() => {
+                        this.setState({ used: true, loading: true, output: this.state.input });
+                        (async () => {
+                            const res = await axios.get('api/' + this.state.input);
+                            console.log(res.data)
+                            const { content } = res.data;
+                            this.setState({ output: content, loading: false });
+                        })();
+                    }}
                 />
                 <AbstractOutput
                     content={this.state.output}
