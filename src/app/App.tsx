@@ -107,7 +107,9 @@ class Demo extends React.Component<{}, {
                     handleSubmit={() => {
                         this.setState({ used: true, loading: true, output: this.state.input });
                         (async () => {
-                            const res = await axios.get('api/' + this.state.input);
+                            const res = await axios.post('api/abstract', {
+                                "content": this.state.input
+                            });
                             console.log(res.data)
                             const { content } = res.data;
                             this.setState({ output: content, loading: false });
