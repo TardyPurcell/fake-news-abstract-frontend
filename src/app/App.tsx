@@ -143,7 +143,7 @@ const App = () => (
                     </p>
                     <Dropdown
                         icon='github'
-                        text='看屎山'
+                        text='看神仙项目'
                         button
                         pointing='left'
                         className='black button icon'
