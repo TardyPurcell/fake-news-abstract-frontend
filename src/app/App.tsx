@@ -6,6 +6,8 @@ import {
     FormProps,
     Grid,
     Header,
+    InputOnChangeData,
+    Label,
     Message,
     Placeholder,
     Segment,
@@ -20,14 +22,14 @@ axios.interceptors.response.use(resp => resp, err => {
 axios.defaults.baseURL = address;
 interface NewsInputPropsType {
     content: string;
+    num: string;
     loading: boolean;
     handleSubmit: (event: React.FormEvent<HTMLFormElement>, data: FormProps) => void;
-    handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>, data: TextAreaProps) => void;
+    handleTextChange: (event: React.ChangeEvent<HTMLTextAreaElement>, data: TextAreaProps) => void;
+    handleNumChange: (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => void;
 };
 class NewsInput extends React.Component<NewsInputPropsType, {}> {
     render() {
-        const content = this.props.content
-
         return (
             <div>
                 <Form
@@ -35,18 +37,30 @@ class NewsInput extends React.Component<NewsInputPropsType, {}> {
                 >
                     <Form.TextArea
                         placeholder='在此输入新闻...'
-                        value={content}
+                        value={this.props.content}
                         fluid
                         style={{ height: 200, resize: 'none' }}
-                        onChange={this.props.handleChange}
+                        onChange={this.props.handleTextChange}
                     />
-                    <Form.Button
-                        positive
-                        fluid
-                        size='big'
-                        content='提取'
-                        loading={this.props.loading}
-                    />
+                    <Form.Group>
+                        <Form.Input
+                            placeholder='10'
+                            labelPosition='right'
+                            size='big'
+                            width={3}
+                            onChange={this.props.handleNumChange}
+                        >
+                            <Label>至多</Label>
+                            <input />
+                            <Label>句</Label>
+                        </Form.Input>
+                        <Form.Button
+                            positive
+                            size='big'
+                            content='提取'
+                            loading={this.props.loading}
+                        />
+                    </Form.Group>
                 </Form>
             </div>
         )
@@ -61,8 +75,6 @@ interface AbstractOutputPropsType {
 
 class AbstractOutput extends React.Component<AbstractOutputPropsType> {
     render() {
-        const content = this.props.content
-
         if (this.props.loading)
             return (
                 <Segment raised>
@@ -83,7 +95,7 @@ class AbstractOutput extends React.Component<AbstractOutputPropsType> {
             return (
                 <Segment raised>
                     <Header as='h2'>摘要</Header>
-                    <p>{content}</p>
+                    <p>{this.props.content}</p>
                 </Segment>
             )
         else
@@ -94,7 +106,7 @@ class AbstractOutput extends React.Component<AbstractOutputPropsType> {
 class Demo extends React.Component<{}, {
 
 }> {
-    readonly state = { input: '', output: '', used: false, loading: false }
+    readonly state = { input: '', num: '10', output: '', used: false, loading: false }
 
     render() {
 
@@ -103,14 +115,23 @@ class Demo extends React.Component<{}, {
                 <NewsInput
                     content={this.state.input}
                     loading={this.state.loading}
-                    handleChange={(e, { value }) => this.setState({ input: value })}
+                    num={this.state.num}
+                    handleTextChange={(e, { value }) => this.setState({ input: value })}
+                    handleNumChange={(e, { value }) => {
+                        const reg = /^(0|[1-9]\d{0,2})$/
+                        if (reg.test(value)) {
+                            this.setState({ num: value })
+                        } else {
+                            this.setState({ num: 10 })
+                        }
+                    }}
                     handleSubmit={() => {
                         this.setState({ used: true, loading: true, output: this.state.input });
                         (async () => {
                             const res = await axios.post('api/abstract', {
-                                "content": this.state.input
+                                "content": this.state.input,
+                                "num": this.state.num
                             });
-                            console.log(res.data)
                             const { content } = res.data;
                             this.setState({ output: content, loading: false });
                         })();
